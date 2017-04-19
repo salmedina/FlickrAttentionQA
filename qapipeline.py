@@ -215,7 +215,7 @@ class QAPipeline(object):
 
 def run_test():
     config = json.load(open('qaconfig.json'))
-    qap = QAPipeline(config['qclf_path'], config['index_url'])
+    qap = QAPipeline(config['qclf_path'], config['index_url'], config['bidaf_url'])
     userid = '88008488@N00'
     question = 'show me a video from Tokyo'
     res = qap.answer_user_question(userid, question)

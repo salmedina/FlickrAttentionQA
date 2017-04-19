@@ -62,6 +62,8 @@ def submit():
 def ask():
     userid = request.args.get('userid')
     question = request.args.get('question')
+    print(userid)
+    print(question)
     res = qap.answer_user_question(userid, question)
     return res
 
