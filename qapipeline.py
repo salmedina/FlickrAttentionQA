@@ -170,7 +170,7 @@ class QAPipeline(object):
             answer['vid'] = ''
 
             answers.append(answer)
-
+            print('Answer appended')
         # TODO: need to rerank based on snippet extraction
 
         return answers
