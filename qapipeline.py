@@ -142,8 +142,6 @@ class QAPipeline(object):
         for rank, res in enumerate(q_results):
             print("Extract answer (%d)"%(rank))
             # Extract answers from text fields
-            snippet = ''
-            # first description
             # TODO: move the period addition into the Bi-DAF service
             snippet = ''
             evidence = ''
@@ -218,8 +216,9 @@ class QAPipeline(object):
         q_results = self.retrieve_user_posts(userid, q_keyterms)
         q_answers = self.extract_answers(question, q_class, q_results)
         # TODO: add user reranking
+        print('Building response')
         response = self.build_reponse(question, q_class, q_answers)
-
+        print('returning')
         return response
 
 def run_test():

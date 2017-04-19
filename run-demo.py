@@ -66,6 +66,7 @@ def ask():
     userid = request.args.get('userid')
     question = request.args.get('question')
     res = qap.answer_user_question(userid, question)
+    print('HEre is the answer')
     return res
 
 if __name__ == "__main__":
