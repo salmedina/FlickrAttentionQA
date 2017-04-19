@@ -111,9 +111,9 @@ class QAPipeline(object):
             keyterms.append(ent.text)
 
         # If no keyterms found, default to the full question words
-        if len(keyterms) < 1:
-            for word in q_doc:
-                keyterms.append(word.text)
+        # if len(keyterms) < 1:
+        #     for word in q_doc:
+        #         keyterms.append(word.text)
 
         # TODO: verify if NE's must be added as a single element
         return list(set(keyterms))  # Remove repeated terms
