@@ -23,6 +23,7 @@ def getPara(rxi):
     return contextss[rxi[0]][rxi[1]]
 
 def getAnswer(paragraph, question):
+    print(type(paragraph), type(question))
     pq_prepro = prepro(paragraph, question)
     if len(pq_prepro['x'])>1000:
         return "[Error] Sorry, the number of words in paragraph cannot be more than 1000." 
