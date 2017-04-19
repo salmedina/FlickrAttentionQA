@@ -160,6 +160,7 @@ class QAPipeline(object):
                     evidence = res['title_t'][0]
 
             # build answer dictionary
+            print('buidling answer')
             answer = {}
             answer['rank'] = rank
             answer['url'] = res['url_s']
