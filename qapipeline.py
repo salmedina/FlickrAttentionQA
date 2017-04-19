@@ -219,19 +219,20 @@ class QAPipeline(object):
 
     def is_valid_user(self, userid):
         #TODO: validate if the user is within the database
+        if userid is None:
+            return False
         return True
 
     def is_valid_question(self, question):
-        if len(question) < 2:
+        if len(question) < 2 or question is None:
             return False
-
         return True
 
     def answer_user_question(self, userid, question):
         '''Obtains the answer to the question according to the index, this runs the full qa pipeline'''
-        if not is_valid_user(userid):
+        if not self.is_valid_user(userid):
             return self.build_error_response('Not a valid userid')
-        if not is_valid_question(question):
+        if not self.is_valid_question(question):
             return self.build_error_response('Not a valid question')
 
         question = self.remove_politeness(question)
