@@ -24,11 +24,13 @@ def getPara(rxi):
 
 def getAnswer(paragraph, question):
     print(type(paragraph), type(question))
+    print(paragraph, question)
     pq_prepro = prepro(paragraph, question)
     if len(pq_prepro['x'])>1000:
         return "[Error] Sorry, the number of words in paragraph cannot be more than 1000." 
     if len(pq_prepro['q'])>100:
         return "[Error] Sorry, the number of words in question cannot be more than 100."
+    print('bidaf running')
     return demo.run(pq_prepro)
 
 config = json.load(open('qaconfig.json'))
