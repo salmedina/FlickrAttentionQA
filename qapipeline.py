@@ -31,7 +31,7 @@ class BiDAF(object):
 
 
 class QAPipeline(object):
-    def __init__(self, qclf_path, index_url, bidaf_url, index_timeout=20):
+    def __init__(self, qclf_path, index_url, bidaf_url='', index_timeout=20):
         '''
         Initializes the constants and instantiates the required objects
         @qclf_path: path to the question classifier binary file
@@ -215,7 +215,7 @@ class QAPipeline(object):
 
 def run_test():
     config = json.load(open('qaconfig.json'))
-    qap = QAPipeline(config['qclf_path'], config['index_url'], config['bidaf_url'])
+    qap = QAPipeline(config['qclf_path'], config['index_url'])
     userid = '88008488@N00'
     question = 'show me a video from Tokyo'
     res = qap.answer_user_question(userid, question)
