@@ -55,12 +55,12 @@ class QAPipeline(object):
         # Init auxiliary objects
         print('Loading classifier')
         self.qclf = fasttext.load_model(qclf_path)
-        print('Loading NLP pipeline')
-        self.nlp = spacy.load('en')
         print('Loading Bi-DAF')
         self.bidaf = BiDAF() if len(bidaf_url) < 1 else BiDAFServer(self.bidaf_url)
         print('Loading Indexer')
         self.solr_flickr = pysolr.Solr(index_url, timeout=20)
+        print('Loading NLP pipeline')
+        self.nlp = spacy.load('en')
 
     def remove_politeness(self, text):
         '''Removes the phrases related to polite requests'''
