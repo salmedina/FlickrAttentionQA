@@ -33,6 +33,7 @@ def fixParagraph(paragraph):
     return paragraph
 
 def getAnswer(paragraph, question):
+    paragraph = fixParagraph(paragraph)
     pq_prepro = prepro(paragraph, question)
     if len(pq_prepro['x'])>1000:
         return "[Error] Sorry, the number of words in paragraph cannot be more than 1000." 
