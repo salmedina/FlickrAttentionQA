@@ -140,7 +140,6 @@ class QAPipeline(object):
         # TODO: This needs to be further improved by making an analysis based on the type of question
         answers = []
         for rank, res in enumerate(q_results):
-            print("Extract answer (%d)"%(rank))
             # Extract answers from text fields
             # TODO: move the period addition into the Bi-DAF service
             snippet = ''
@@ -151,15 +150,12 @@ class QAPipeline(object):
                 evidence = res['desc_t']
             # if not get it from title
             if len(evidence) < 1 and len(res['title_t']) > 0:
-                print(type(res['title_t'][0]))
-                print(res['title_t'][0])
                 if len(res['title_t'][0]) > 0:
                     bidaf_ans = self.get_answer(question, res['title_t'][0])
                     snippet = bidaf_ans
                     evidence = res['title_t'][0]
 
             # build answer dictionary
-            print('buidling answer')
             answer = {}
             answer['rank'] = rank
             answer['url'] = res['url_s']
@@ -168,7 +164,6 @@ class QAPipeline(object):
             answer['vid'] = ''
 
             answers.append(answer)
-            print('Answer appended')
         # TODO: need to rerank based on snippet extraction
 
         return answers
@@ -216,9 +211,7 @@ class QAPipeline(object):
         q_results = self.retrieve_user_posts(userid, q_keyterms)
         q_answers = self.extract_answers(question, q_class, q_results)
         # TODO: add user reranking
-        print('Building response')
         response = self.build_reponse(question, q_class, q_answers)
-        print('returning')
         return response
 
 def run_test():

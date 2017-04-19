@@ -66,9 +66,7 @@ def ask():
     userid = request.args.get('userid')
     question = request.args.get('question')
     res = qap.answer_user_question(userid, question)
-    print('HEre is the answer')
-    print(type(res))
-    return jsonify(data=res)
+    return jsonify(res)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="1995", threaded=True )
