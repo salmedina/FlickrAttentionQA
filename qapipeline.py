@@ -97,7 +97,7 @@ class QAPipeline(object):
         q_doc = self.nlp(question)
         # Extract verbs
         for word in q_doc:
-            if word.pos_ == u'VERB' and word.lemma_ not in self.uninformative_verbs:
+            if word.pos_ == u'VERB' and word.lemma_ not in self.uninformative_verbs and word.lemma_ not in self.show_me_verbs:
                 keyterms.append(word.text)
 
         # Extract NP
