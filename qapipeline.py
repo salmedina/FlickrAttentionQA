@@ -152,8 +152,8 @@ class QAPipeline(object):
             snippet = ''
             evidence = ''
             if len(res['desc_t']) > 0:
-                print(type(res['desc_t']))
-                print(res['desc_t'])
+                print(type(res['desc_t'][0]))
+                print(res['desc_t'][0])
                 bidaf_ans = self.get_answer(question, res['desc_t'])
                 snippet = bidaf_ans
                 evidence = res['desc_t']
