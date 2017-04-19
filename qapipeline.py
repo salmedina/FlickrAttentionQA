@@ -145,12 +145,12 @@ class QAPipeline(object):
             # TODO: move the period addition into the Bi-DAF service
             bidaf_ans = self.bidaf.get_answer(question, res['desc_t'])
             snippet = bidaf_ans
-            evidence = res['desc_t']
+            evidence = res['desc_t'][0]
             # if not get it from title
             if len(evidence) < 1:
                 bidaf_ans = self.bidaf.get_answer(question, res['title_t'])
                 snippet = bidaf_ans
-                evidence = res['title_t']
+                evidence = res['title_t'][0]
 
             # build answer dictionary
             answer = {}
