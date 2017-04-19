@@ -53,9 +53,13 @@ class QAPipeline(object):
         self.show_me_verbs = [u'show', u'display', u'play', u'find', u'look', u'search']
         self.polite_phrases = [u'please', u'Please', u'could you please', u'Could you please']
         # Init auxiliary objects
+        print('Loading classifier')
         self.qclf = fasttext.load_model(qclf_path)
+        print('Loading NLP pipeline')
         self.nlp = spacy.load('en')
+        print('Loading Bi-DAF')
         self.bidaf = BiDAF() if len(bidaf_url) < 1 else BiDAFServer(self.bidaf_url)
+        print('Loading Indexer')
         self.solr_flickr = pysolr.Solr(index_url, timeout=20)
 
     def remove_politeness(self, text):
