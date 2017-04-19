@@ -142,6 +142,13 @@ class QAPipeline(object):
 
         return res_list
 
+    def get_index_field_val(self, field_val):
+        if type(field_val) is list:
+            return field_val[0]
+        if type(field_val) is str:
+            return field_val
+        return field_val
+
     def extract_answers(self, question, q_class, q_results):
         '''Filters out answers through BiDAF'''
         # TODO: This needs to be further improved by making an analysis based on the type of question
@@ -151,18 +158,18 @@ class QAPipeline(object):
             # TODO: move the period addition into the Bi-DAF service
             snippet = ''
             evidence = ''
-            if len(res['desc_t']) > 0:
-                print(type(res['desc_t'][0]))
-                print(res['desc_t'][0])
-                bidaf_ans = self.get_answer(question, res['desc_t'][0])
+            text = self.get_index_field_val(res['desc_t'])
+            if len(text) > 0:
+                print(text)
+                bidaf_ans = self.get_answer(question, text)
                 snippet = bidaf_ans
-                evidence = res['desc_t']
+                evidence = text
             # if not get it from title
-            if len(evidence) < 1 and len(res['title_t']) > 0:
-                if len(res['title_t'][0]) > 0:
-                    bidaf_ans = self.get_answer(question, res['title_t'][0])
-                    snippet = bidaf_ans
-                    evidence = res['title_t'][0]
+            text = self.get_index_field_val(res['title_t'])
+            if len(evidence) < 1 and len(text) > 0:
+                bidaf_ans = self.get_answer(question, text)
+                snippet = bidaf_ans
+                evidence = text
 
             # build answer dictionary
             answer = {}
