@@ -93,7 +93,6 @@ class QAPipeline(object):
         # Extract verbs
         for word in q_doc:
             if word.pos_ == u'VERB' and word.lemma_ not in self.uninformative_verbs:
-                print(word.lemma_)
                 keyterms.append(word.text)
 
         # Extract NP
@@ -126,7 +125,6 @@ class QAPipeline(object):
         keyterms_s = ' '.join(keyterms)
         query_s = 'userid_s="%s" AND (title_t: %s OR desc_t: %s)' % (userid, keyterms_s, keyterms_s)
 
-        print(query_s)
         res = self.solr_flickr.search(query_s, rows=25)
         res_list = self.solr_res_to_list(res)
 
@@ -217,7 +215,7 @@ def run_test():
     userid = '88008488@N00'
     question = 'show me a video from Tokyo'
     res = qap.answer_user_question(userid, question)
-    print res
+    print(res)
 
 if __name__ == '__main__':
     run_test()
