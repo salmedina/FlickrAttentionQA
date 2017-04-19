@@ -31,7 +31,8 @@ def getAnswer(paragraph, question):
 
 @app.route('/')
 def main():
-    return render_template('index.html')
+	return 'BiDAF query is located at path /submit, the fields are "paragraph" and "question"'
+    #return render_template('index.html')
 
 @app.route('/select', methods=['GET', 'POST'])
 def select():
@@ -45,8 +46,13 @@ def select():
 def submit():
     paragraph = request.args.get('paragraph')
     question = request.args.get('question')
+    if paragraph is None or question is None:
+        req_data = request.get_json() 
+        question = req_data['question']
+        paragraph = req_data['paragraph']
+    
     answer = getAnswer(paragraph, question)
     return jsonify(result=answer)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port="1995", threaded=True)
+    app.run(host="0.0.0.0", port="1995", threaded=True )
