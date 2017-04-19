@@ -97,7 +97,9 @@ class QAPipeline(object):
         q_doc = self.nlp(question)
         # Extract verbs
         for word in q_doc:
-            if word.pos_ == u'VERB' and word.lemma_ not in self.uninformative_verbs and word.lemma_ not in self.show_me_verbs:
+            if word.pos_ == u'VERB' and \
+                (word.lemma_ not in self.uninformative_verbs) and \
+                (word.lemma_ not in self.show_me_verbs):
                 keyterms.append(word.text)
 
         # Extract NP
@@ -107,6 +109,11 @@ class QAPipeline(object):
         # Extract NE
         for ent in q_doc.ents:
             keyterms.append(ent.text)
+
+        # If no keyterms found, default to the full question words
+        if len(keyterms) < 1:
+            for word in q_doc:
+                keyterms.append(word.text)
 
         # TODO: verify if NE's must be added as a single element
         return list(set(keyterms))  # Remove repeated terms
@@ -203,8 +210,30 @@ class QAPipeline(object):
 
         return res
 
+    def build_error_response(self, msg):
+        res = {}
+        res['Error'] = {}
+        res['Error']['message'] = msg
+
+        return res
+
+    def is_valid_user(self, userid):
+        #TODO: validate if the user is within the database
+        return True
+
+    def is_valid_question(self, question):
+        if len(question) < 2:
+            return False
+
+        return True
+
     def answer_user_question(self, userid, question):
         '''Obtains the answer to the question according to the index, this runs the full qa pipeline'''
+        if not is_valid_user(userid):
+            return self.build_error_response('Not a valid userid')
+        if not is_valid_question(question):
+            return self.build_error_response('Not a valid question')
+
         question = self.remove_politeness(question)
         q_class, q_class_prob = self.classify_question(question)
         q_keyterms = self.extract_keyterms(question, q_class)

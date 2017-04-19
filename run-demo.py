@@ -22,6 +22,16 @@ def getTitle(ai):
 def getPara(rxi):
     return contextss[rxi[0]][rxi[1]]
 
+def fixParagraph(paragraph):
+    '''Adds a period to the paragraph in case it doesn't have a punctuation mark, 
+    improves performance of model'''
+    if len(paragraph) < 1 or paragraph is None:
+        return paragraph
+    if paragraph[-1] is not in ['.', '!', '?', ':', ';', '-']:
+        paragraph += u"."
+
+    return paragraph
+
 def getAnswer(paragraph, question):
     pq_prepro = prepro(paragraph, question)
     if len(pq_prepro['x'])>1000:
