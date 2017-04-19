@@ -148,7 +148,7 @@ class QAPipeline(object):
             evidence = res['desc_t']
             # if not get it from title
             if len(evidence) < 1:
-                bidaf_ans = self.bidaf.answer(question, res['title_t'])
+                bidaf_ans = self.bidaf.get_answer(question, res['title_t'])
                 snippet = bidaf_ans
                 evidence = res['title_t']
 
