@@ -35,7 +35,7 @@ def getAnswer(paragraph, question):
 
 @app.route('/')
 def main():
-	return 'BiDAF query is located at path /submit, the fields are "paragraph" and "question"'
+    return 'BiDAF query is located at path /submit, the fields are "paragraph" and "question"'
     #return render_template('index.html')
 
 @app.route('/select', methods=['GET', 'POST'])
@@ -62,8 +62,6 @@ def submit():
 def ask():
     userid = request.args.get('userid')
     question = request.args.get('question')
-    print(userid)
-    print(question)
     res = qap.answer_user_question(userid, question)
     return res
 
