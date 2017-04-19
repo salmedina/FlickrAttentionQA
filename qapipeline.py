@@ -140,6 +140,7 @@ class QAPipeline(object):
         # TODO: This needs to be further improved by making an analysis based on the type of question
         answers = []
         for rank, res in enumerate(q_results):
+            print("Extract answer (%d)"%(rank))
             # Extract answers from text fields
             snippet = ''
             # first description
