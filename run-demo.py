@@ -27,7 +27,7 @@ def fixParagraph(paragraph):
     improves performance of model'''
     if len(paragraph) < 1 or paragraph is None:
         return paragraph
-    if paragraph[-1] is not in ['.', '!', '?', ':', ';', '-']:
+    if paragraph[-1] not in ['.', '!', '?', ':', ';', '-']:
         paragraph += u"."
 
     return paragraph
