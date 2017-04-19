@@ -16,9 +16,6 @@ titles = ["Write own paragraph"]+shared["titles"]
 
 demo = Demo()
 
-config = json.load(open('qaconfig.json'))
-qap = QAPipeline(config['qclf_path'], config['index_url'], config['bidaf_url'])
-
 def getTitle(ai):
     return titles[ai]
 
@@ -32,6 +29,9 @@ def getAnswer(paragraph, question):
     if len(pq_prepro['q'])>100:
         return "[Error] Sorry, the number of words in question cannot be more than 100."
     return demo.run(pq_prepro)
+
+config = json.load(open('qaconfig.json'))
+qap = QAPipeline(config['qclf_path'], config['index_url'], config['bidaf_url'], get_answer=getAnswer)
 
 @app.route('/')
 def main():

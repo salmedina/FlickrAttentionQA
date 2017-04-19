@@ -31,7 +31,7 @@ class BiDAF(object):
 
 
 class QAPipeline(object):
-    def __init__(self, qclf_path, index_url, bidaf_url='', index_timeout=20):
+    def __init__(self, qclf_path, index_url, bidaf_url='', index_timeout=20, get_answer=None):
         '''
         Initializes the constants and instantiates the required objects
         @qclf_path: path to the question classifier binary file
@@ -61,6 +61,7 @@ class QAPipeline(object):
         self.solr_flickr = pysolr.Solr(index_url, timeout=20)
         print('Loading NLP pipeline')
         self.nlp = spacy.load('en')
+        self.get_answer = get_answer if get_answer is not None else self.bidaf.get_answer
 
     def remove_politeness(self, text):
         '''Removes the phrases related to polite requests'''
@@ -146,14 +147,15 @@ class QAPipeline(object):
             snippet = ''
             evidence = ''
             if len(res['desc_t']) > 0:
-                bidaf_ans = self.bidaf.get_answer(question, res['desc_t'])
+                bidaf_ans = self.get_answer(question, res['desc_t'])
                 snippet = bidaf_ans
                 evidence = res['desc_t']
             # if not get it from title
             if len(evidence) < 1 and len(res['title_t']) > 0:
                 print(type(res['title_t'][0]))
+                print(res['title_t'][0])
                 if len(res['title_t'][0]) > 0:
-                    bidaf_ans = self.bidaf.get_answer(question, res['title_t'][0])
+                    bidaf_ans = self.get_answer(question, res['title_t'][0])
                     snippet = bidaf_ans
                     evidence = res['title_t'][0]
 
