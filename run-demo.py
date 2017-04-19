@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, request, jsonify
 from squad.demo_prepro import prepro
 from basic.demo_cli import Demo
+from qapipeline import QAPipeline
 import json
 
 app = Flask(__name__)
@@ -14,6 +15,9 @@ for i in range(len(shared['contextss'])):
 titles = ["Write own paragraph"]+shared["titles"]
 
 demo = Demo()
+
+config = json.load(open('qaconfig.json'))
+qap = QAPipeline(config['qclf_path'], config['index_url'], config['bidaf_url'])
 
 def getTitle(ai):
     return titles[ai]
@@ -53,6 +57,13 @@ def submit():
     
     answer = getAnswer(paragraph, question)
     return jsonify(result=answer)
+
+@app.route('/ask', methods=['GET', 'POST'])
+def ask():
+    userid = request.args.get('userid')
+    question = request.args.get('question')
+    res = qap.answer_user_question(userid, question)
+    return res
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port="1995", threaded=True )
