@@ -269,11 +269,11 @@ class QAPipeline(object):
         '''Formats the answer to the API format'''
         res = {}
 
-        # TODO: build a smarter answer summary
-        if len(q_answers[0]['snippets']) > 0:
-            res['answer_summary'] = q_answers[0]['snippets']
-        else:
-            res['answer_summary'] = q_answers[0]['evidence']
+        if q_answers is not None and len(q_answers) > 0:
+            if len(q_answers[0]['snippets']) > 0:
+                res['answer_summary'] = q_answers[0]['snippets']
+            else:
+                res['answer_summary'] = q_answers[0]['evidence']
         res['answers'] = q_answers
         res['highlighted_keyword'] = [a['snippets'] for a in q_answers if len(a['snippets']) > 0]
         res['question_type'] = self.normalize_question_class(q_class)
