@@ -172,7 +172,7 @@ class QAPipeline(object):
         norm_q_class = self.normalize_question_class(q_class)
 
         ners =[]
-        doc = self.nlp.(self.ensure_unicode(text))
+        doc = self.nlp(self.ensure_unicode(text))
         if norm_q_class == u'how_many':
             print('how_many')
         elif norm_q_class == u'when':
@@ -311,7 +311,7 @@ def run_test():
     config = json.load(open('qaconfig.json'))
     qap = QAPipeline(config['qclf_path'], config['index_url'], config['bidaf_url'])
     userid = '88008488@N00'
-    question = 'show me a video from Tokyo' 
+    question = 'show me a video from Tokyo'
     res = qap.answer_user_question(userid, question)
     print(res)
 
