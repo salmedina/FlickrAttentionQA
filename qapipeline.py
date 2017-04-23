@@ -283,6 +283,8 @@ class QAPipeline(object):
         '''Formats the answer to the API format'''
         res = {}
 
+        #TODO: improve the answer summary based on centrality of top answers
+        res['answer_summary'] = ''
         if q_answers is not None and len(q_answers) > 0:
             if len(q_answers[0]['snippets']) > 0:
                 res['answer_summary'] = q_answers[0]['snippets']
