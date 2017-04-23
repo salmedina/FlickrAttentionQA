@@ -50,7 +50,7 @@ class QAPipeline(object):
         self.bidaf_url = bidaf_url
         self.index_url = index_url
         # Declare constants
-        self.index_fieldnames = [u'userid_s', u'username_s', u'title_t', u'desc_t', u'url_s', u'mediaurl_s', u'feedback_s', u'datetime_dt']
+        self.index_fieldnames = [u'id', u'userid_s', u'username_s', u'title_t', u'desc_t', u'url_s', u'mediaurl_s', u'feedback_s', u'datetime_dt']
         self.multimodal_question_types = [u'how_many', u'what', u'when', u'when_and_where', u'where', u'show_me', u'yes/no']
         self.uninformative_verbs = [u'be', u'do', u'have']
         self.show_me_verbs = [u'show', u'display', u'play', u'find', u'look', u'search']
