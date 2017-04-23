@@ -6,6 +6,9 @@ import fasttext
 import pysolr
 from squad.demo_prepro import prepro
 from basic.demo_cli import Demo
+import collections
+
+Flick = collections.namedtuple('Flick', 'id, userid, username, dt, title, desc, tags, url, mediaurl')
 
 
 class BiDAFServer(object):
@@ -47,7 +50,7 @@ class QAPipeline(object):
         self.bidaf_url = bidaf_url
         self.index_url = index_url
         # Declare constants
-        self.index_fieldnames = [u'userid_s', u'username_s', u'title_t', u'desc_t', u'url_s', u'datetime_dt']
+        self.index_fieldnames = [u'userid_s', u'username_s', u'title_t', u'desc_t', u'url_s', u'mediaurl_s', u'feedback_s', u'datetime_dt']
         self.multimodal_question_types = [u'how_many', u'what', u'when', u'when_and_where', u'where', u'show_me', u'yes/no']
         self.uninformative_verbs = [u'be', u'do', u'have']
         self.show_me_verbs = [u'show', u'display', u'play', u'find', u'look', u'search']
@@ -128,6 +131,10 @@ class QAPipeline(object):
                     res_dict[fieldname] = r[fieldname]
                 else:
                     res_dict[fieldname] = ''
+            # Add voting fields to results
+            res_dict['bidaf'] = ''
+            res_dict['ner'] = ''
+            res_dict['votes'] = 0
             res_list.append(res_dict)
 
         return res_list
@@ -149,8 +156,52 @@ class QAPipeline(object):
             return field_val
         return field_val
 
+    def extract_bidaf_answer(self, q, res, fieldname):
+        bidaf_ans = ''
+        text = self.get_index_field_val(res[fieldname])
+        if len(text) > 0:
+            bidaf_ans = self.get_answer(q, text)
+        return bidaf_ans
+
+    def ensure_unicode(self, text):
+        if type(text) == str:
+            return text.decode('utf-8')
+        return text
+
+    def extract_ner_answer(self, q_class, text):
+        norm_q_class = self.normalize_question_class(q_class)
+
+        ners =[]
+        doc = nlp.(ensure(unicode(text))
+        if norm_q_class == 'how_many':
+
+        elif norm_q_class == 'when':
+
+        elif norm_q_class == 'where':
+
+        elif norm_q_class == 'when_and_where':
+
+        else:
+
+        return ners
+
+
     def extract_answers(self, question, q_class, q_results):
-        '''Filters out answers through BiDAF'''
+        '''
+        Extracts the answer from the document retrieval phase
+        @question: querying question
+        @q_class: type of answer expected
+        @q_results: index querying results
+        @returns: list of answers
+        '''
+
+        '''
+        According to type of question is what will be done, q_class should be the binned question
+        1. Go through each of the retrieved docs
+        2. Extract bidaf answer from title or desc, add to answer and add vote
+        3. According to the question class:   
+            - Extract corresponding ner, add to answer dict and add vote
+        '''
         # TODO: This needs to be further improved by making an analysis based on the type of question
         answers = []
         for rank, res in enumerate(q_results):
@@ -174,15 +225,20 @@ class QAPipeline(object):
             # build answer dictionary
             answer = {}
             answer['rank'] = rank
-            answer['url'] = res['url_s']
+            answer['url'] = res['mediaurl_s']
             answer['evidence'] = evidence
             answer['snippets'] = snippet
             answer['vid'] = ''
 
             answers.append(answer)
-        # TODO: need to rerank based on snippet extraction
+
+        # Sort according to extraction votes
+        answers = sorted(answers, key=lambda x:x['votes'])
 
         return answers
+
+    def rerank_answers(self, answers):
+        pass
 
     def normalize_question_class(self, q_class):
         '''Bins the questions into the demo classes'''
