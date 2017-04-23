@@ -297,7 +297,6 @@ class QAPipeline(object):
         if not self.is_valid_question(question):
             return self.build_error_response('Not a valid question')
 
-        question = self.ensure_unicode(question)
         question = self.remove_politeness(question)
         q_class, q_class_prob = self.classify_question(question)
         q_keyterms = self.extract_keyterms(question, q_class)
