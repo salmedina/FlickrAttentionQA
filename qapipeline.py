@@ -131,9 +131,6 @@ class QAPipeline(object):
                     res_dict[fieldname] = r[fieldname]
                 else:
                     res_dict[fieldname] = ''
-            # Add voting fields to results
-            res_dict['bidaf'] = ''
-            res_dict['ner'] = ''
             res_dict['votes'] = 0
             res_list.append(res_dict)
 
@@ -229,11 +226,19 @@ class QAPipeline(object):
             answer['evidence'] = evidence
             answer['snippets'] = snippet
             answer['vid'] = res['id']
+            answer['bidaf'] = ''
+            answer['ner'] = ''
+            answer['votes'] = 0
 
             answers.append(answer)
 
         # Sort according to extraction votes
         answers = sorted(answers, key=lambda x:x['votes'])
+
+        # Remove the fields that will not be shown in final answer
+        map(lambda d: d.pop('bidaf', None), answers)
+        map(lambda d: d.pop('ner', None), answers)
+        map(lambda d: d.pop('votes', None), answers)
 
         return answers
 
