@@ -132,7 +132,9 @@ class QAPipeline(object):
             keyterms.append(ent.text)
 
         # TODO: verify if NE's must be added as a single element
-        return list(set(keyterms))  # Remove repeated terms
+        keyterms = list(set(keyterms))
+        print(keyterms)
+        return keyterms  # Remove repeated terms
 
     def solr_res_to_list(self, response):
         '''Converts a solr response into a list of dictionaries that represent the answer'''
@@ -152,8 +154,8 @@ class QAPipeline(object):
     def retrieve_user_posts(self, userid, keyterms):
         '''Retrieves from the index the user's post with userid and based on the keyterms'''
         keyterms_s = ' '.join(keyterms)
-        query_s = 'userid_s="%s" AND (title_t: %s OR desc_t: %s)' % (userid, keyterms_s, keyterms_s)
-
+        query_s = 'userid_s:"%s" AND (title_t:%s OR desc_t:%s)' % (userid, keyterms_s, keyterms_s)
+        print(query_s)
         res = self.solr_flickr.search(query_s, rows=25)
         res_list = self.solr_res_to_list(res)
 
