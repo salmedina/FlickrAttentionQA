@@ -236,9 +236,9 @@ class QAPipeline(object):
         answers = sorted(answers, key=lambda x:x['votes'])
 
         # Remove the fields that will not be shown in final answer
-        map(lambda d: d.pop('bidaf', None), answers)
-        map(lambda d: d.pop('ner', None), answers)
-        map(lambda d: d.pop('votes', None), answers)
+        map(lambda d: d.pop('bidaf'), answers)
+        map(lambda d: d.pop('ner'), answers)
+        map(lambda d: d.pop('votes'), answers)
 
         return answers
 
