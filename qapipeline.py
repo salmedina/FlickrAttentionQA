@@ -55,6 +55,7 @@ class QAPipeline(object):
         self.uninformative_verbs = [u'be', u'do', u'have']
         self.show_me_verbs = [u'show', u'display', u'play', u'find', u'look', u'search']
         self.polite_phrases = [u'please', u'Please', u'could you please', u'Could you please']
+        self.timesort_phrases = [u'first time',u'last time']
         # Init auxiliary objects
         print('Loading classifier')
         self.qclf = fasttext.load_model(qclf_path)
@@ -88,18 +89,30 @@ class QAPipeline(object):
 
     def classify_question(self, question):
         '''Classifies the question based on the given classifier during the init'''
-        # TODO: incorporate into the classifier
-        # TODO: add yes/no label into training of classifier
+        # TODO: improve the classifier and incorporate yes/no label
         if self.is_command(question):
-            return 'show_me:all', 1.0
+            return 'show_me'
+
+        q_doc = self.nlp(question)
+        first_token = q_doc[0].lemma_
+        if first_token == u'where':
+            return u'where'
+        elif first_token in [u'how many', u'how much']:
+            return u'how_many'
+        elif first_token == u'when':
+            return u'when'
+        elif first_token in self.uninformative_verbs:
+            return 'yes/no'
 
         label, prob = self.qclf.predict_proba([question])[0][0]
         label = label.replace('__label__', '')
-        return label, prob
+
+        norm_label = self.normalize_question_class(label)
+
+        return norm_label
 
     def extract_keyterms(self, question, q_class):
         '''Extracts the keyterms from the question'''
-        label_root, label_sub = q_class.split(':')
         keyterms = []
 
         q_doc = self.nlp(question)
@@ -166,17 +179,16 @@ class QAPipeline(object):
 
     def extract_ner_answer(self, q_class, text):
         #TODO: finish heuristics
-        norm_q_class = self.normalize_question_class(q_class)
 
         ners =[]
         doc = self.nlp(text)
-        if norm_q_class == u'how_many':
+        if q_class == u'how_many':
             print('how_many')
-        elif norm_q_class == u'when':
+        elif q_class == u'when':
             print('when')
-        elif norm_q_class == u'where':
+        elif q_class == u'where':
             print('where')
-        elif norm_q_class == u'when_and_where':
+        elif q_class == u'when_and_where':
             print('when_and_where')
         else:
             print('other')
@@ -276,7 +288,7 @@ class QAPipeline(object):
                 res['answer_summary'] = q_answers[0]['evidence']
         res['answers'] = q_answers
         res['highlighted_keyword'] = [a['snippets'] for a in q_answers if len(a['snippets']) > 0]
-        res['question_type'] = self.normalize_question_class(q_class)
+        res['question_type'] = q_class
         res['user_question'] = question
 
         return res
@@ -307,11 +319,11 @@ class QAPipeline(object):
             return self.build_error_response('Not a valid question')
 
         question = self.remove_politeness(question)
-        q_class, q_class_prob = self.classify_question(question)
+        q_class =  self.classify_question(question)
         q_keyterms = self.extract_keyterms(question, q_class)
         q_results = self.retrieve_user_posts(userid, q_keyterms)
         q_answers = self.extract_answers(question, q_class, q_results)
-        # TODO: add user reranking
+        #TODO: add user reranking based on history
         response = self.build_reponse(question, q_class, q_answers)
         return response
 
