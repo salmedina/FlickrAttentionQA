@@ -81,6 +81,11 @@ class QAPipeline(object):
 
         return False
 
+    def ensure_unicode(self, text):
+        if type(text) == str:
+            return text.decode('utf-8')
+        return text
+
     def classify_question(self, question):
         '''Classifies the question based on the given classifier during the init'''
         # TODO: incorporate into the classifier
@@ -112,11 +117,6 @@ class QAPipeline(object):
         # Extract NE
         for ent in q_doc.ents:
             keyterms.append(ent.text)
-
-        # If no keyterms found, default to the full question words
-        # if len(keyterms) < 1:
-        #     for word in q_doc:
-        #         keyterms.append(word.text)
 
         # TODO: verify if NE's must be added as a single element
         return list(set(keyterms))  # Remove repeated terms
@@ -156,6 +156,10 @@ class QAPipeline(object):
             return field_val
         return field_val
 
+    def build_video_url(self, vid):
+        video_url = u"https://www.flickr.com/video_download.gne?id={}".format(vid)
+        return video_url
+
     def extract_bidaf_answer(self, q, res, fieldname):
         bidaf_ans = ''
         text = self.get_index_field_val(res[fieldname])
@@ -163,28 +167,24 @@ class QAPipeline(object):
             bidaf_ans = self.get_answer(q, text)
         return bidaf_ans
 
-    def ensure_unicode(self, text):
-        if type(text) == str:
-            return text.decode('utf-8')
-        return text
-
     def extract_ner_answer(self, q_class, text):
+        #TODO: finish heuristics
         norm_q_class = self.normalize_question_class(q_class)
 
         ners =[]
-        doc = nlp.(ensure(unicode(text))
-        if norm_q_class == 'how_many':
-
-        elif norm_q_class == 'when':
-
-        elif norm_q_class == 'where':
-
-        elif norm_q_class == 'when_and_where':
-
+        doc = self.nlp.(self.ensure_unicode(text))
+        if norm_q_class == u'how_many':
+            print('how_many')
+        elif norm_q_class == u'when':
+            print('when')
+        elif norm_q_class == u'where':
+            print('where')
+        elif norm_q_class == u'when_and_where':
+            print('when_and_where')
         else:
+            print('other')
 
         return ners
-
 
     def extract_answers(self, question, q_class, q_results):
         '''
@@ -225,10 +225,10 @@ class QAPipeline(object):
             # build answer dictionary
             answer = {}
             answer['rank'] = rank
-            answer['url'] = res['mediaurl_s']
+            answer['url'] = self.build_video_url(res['id'])
             answer['evidence'] = evidence
             answer['snippets'] = snippet
-            answer['vid'] = ''
+            answer['vid'] = res['id']
 
             answers.append(answer)
 
@@ -236,9 +236,6 @@ class QAPipeline(object):
         answers = sorted(answers, key=lambda x:x['votes'])
 
         return answers
-
-    def rerank_answers(self, answers):
-        pass
 
     def normalize_question_class(self, q_class):
         '''Bins the questions into the demo classes'''
@@ -300,6 +297,7 @@ class QAPipeline(object):
         if not self.is_valid_question(question):
             return self.build_error_response('Not a valid question')
 
+        question = self.ensure_unicode(question)
         question = self.remove_politeness(question)
         q_class, q_class_prob = self.classify_question(question)
         q_keyterms = self.extract_keyterms(question, q_class)
@@ -313,7 +311,7 @@ def run_test():
     config = json.load(open('qaconfig.json'))
     qap = QAPipeline(config['qclf_path'], config['index_url'], config['bidaf_url'])
     userid = '88008488@N00'
-    question = 'show me a video from Tokyo'
+    question = 'show me a video from Tokyo' 
     res = qap.answer_user_question(userid, question)
     print(res)
 
