@@ -172,7 +172,7 @@ class QAPipeline(object):
         norm_q_class = self.normalize_question_class(q_class)
 
         ners =[]
-        doc = self.nlp(self.ensure_unicode(text))
+        doc = self.nlp(text)
         if norm_q_class == u'how_many':
             print('how_many')
         elif norm_q_class == u'when':
