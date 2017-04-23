@@ -270,7 +270,7 @@ class QAPipeline(object):
         res = {}
 
         # TODO: build a smarter answer summary
-        if len(q_answers[0]['snippets']) > 0
+        if len(q_answers[0]['snippets']) > 0:
             res['answer_summary'] = q_answers[0]['snippets']
         else:
             res['answer_summary'] = q_answers[0]['evidence']
