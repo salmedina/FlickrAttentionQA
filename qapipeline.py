@@ -174,7 +174,9 @@ class QAPipeline(object):
         return video_url
 
     def extract_bidaf_answer(self, q, text):
-        return self.get_answer(q, text)
+        bidaf_ans = self.get_answer(q, text)
+        print('bidaf_ans: {}'.format(bidaf_ans))
+        return bidaf_ans
 
     def extract_ner_answer(self, q_class, text):
         ''' Heuristics to extract the related named entities according to question type '''
@@ -225,6 +227,7 @@ class QAPipeline(object):
             answer['evidence'] = ''
             answer['snippets'] = ''
             answer['votes'] = 0
+            answer['default'] = ''
 
             '''
             1. Annotate the text for re-ranking
@@ -243,7 +246,7 @@ class QAPipeline(object):
             res_desc =  self.get_index_field_val(res['desc_t'])
             print('title: ', res_title)
             print('desc:  ', res_desc)
-            # title
+            # TITLE
             if res_title:
                 answer['ner']['title'] = self.extract_ner_answer(q_class, res_title)
                 if answer['ner']['title']:
@@ -253,7 +256,7 @@ class QAPipeline(object):
                 if answer['bidaf']['title']:
                     answer['votes'] += 1
 
-            # description
+            # DESCRIPTION
             if res_desc:
                 answer['ner']['desc'] = self.extract_ner_answer(q_class, res_desc)
                 if answer['ner']['desc']:
@@ -276,6 +279,15 @@ class QAPipeline(object):
             elif answer['ner']['title']:
                 answer['evidence'] = 'title: {}'.format(res_title)
                 answer['snippets'] = answer['ner']['title']
+
+            # default according to type
+            if q_class in ['when', 'where_and_when']:
+                answer['default'] = res['datetime_dt']
+            elif q_class in ['yes/no']:
+                if answer['evidence'] or answer['snippet']:
+                    answer['default'] = 'yes'
+                else:
+                    answer['default'] = 'no'
 
             answers.append(answer)
 
@@ -317,22 +329,25 @@ class QAPipeline(object):
 
         return bin_class
 
-    def summarize_answers(self, q_answers):
-        pass
+    def summarize_answers(self, question, q_class, q_answers):
+        ''' Generates the final answer according to the evidence '''
+        summary = ''
+        if q_answers:
+            if q_answers[0]['snippets']:
+                summary = q_answers[0]['snippets']
+            elif q_answers[0]['evidence']:
+                summary = q_answers[0]['evidence']
+
+        return summary
 
     def build_reponse(self, question, q_class, q_answers):
         '''Formats the answer to the API format'''
         res = {}
 
         #TODO: improve the answer summary based on type of answer
-        res['answer_summary'] = ''
-        if q_answers:
-            if q_answers[0]['snippets']:
-                res['answer_summary'] = q_answers[0]['snippets']
-            else:
-                res['answer_summary'] = q_answers[0]['evidence']
+        res['answer_summary'] = self.summarize_answers(question, q_class, q_answers)
         res['answers'] = q_answers[:self.num_answers]
-        res['highlighted_keyword'] = [a['snippets'] for a in q_answers if len(a['snippets']) > 0]
+        res['highlighted_keyword'] = [a['snippets'] for a in res['answers'] if a['snippets']]
         res['question_type'] = q_class
         res['user_question'] = question
 
