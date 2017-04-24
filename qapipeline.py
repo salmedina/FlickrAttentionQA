@@ -152,7 +152,7 @@ class QAPipeline(object):
 
         # TODO: verify if NE's must be added as a single element
         keyterms = list(set(keyterms))
-
+        print(keyterms)
         return keyterms  # Remove repeated terms
 
     def solr_res_to_list(self, response):
@@ -176,7 +176,7 @@ class QAPipeline(object):
         query_s = 'userid_s:"%s" AND (title_t:%s OR desc_t:%s)' % (userid, keyterms_s, keyterms_s)
         res = self.solr_flickr.search(query_s, rows=25)
         res_list = self.solr_res_to_list(res)
-
+        print(query_s)
         return res_list
 
     def get_index_field_val(self, field_val):
@@ -204,7 +204,7 @@ class QAPipeline(object):
         elif q_class == u'where':
             ners = [w.text for w in doc.ents if w.label_ in ['FACILITY', 'ORG', 'GPE', 'LOC']]
         elif q_class == u'when_and_where':
-            ners = [w.text for w in doc.ents if w.label_ in ['FACILITY', 'ORG', 'GPE', 'LOC', 'ORDINAL', 'DATE', 'TIME']]
+            ners = [w.text for w in doc.ents if w.label_ in ['FACILITY', 'ORG', 'GPE', 'LOC', 'ORDINAL', 'CARDINAL', 'DATE', 'TIME']]
         elif q_class == u'who':
             ners = [w.text for w in doc.ents if w.label_ in ['PERSON', 'ORG', 'EVENT', 'WORK_OF_ART']]
         else:
