@@ -76,7 +76,7 @@ def ask():
     if (userid is None and question is None):
         data = request.get_json()
         userid = data['userid']
-        question = data['userid']
+        question = data['question']
 
     res = qap.answer_user_question(userid, question)
     return jsonify(res)
