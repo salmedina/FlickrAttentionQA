@@ -258,6 +258,8 @@ class QAPipeline(object):
                 answer['ner']['title'] = self.extract_ner_answer(q_class, res_title)
                 if answer['ner']['title']:
                     answer['votes'] += 1
+                    if q_class in ['when', 'where_and_when'] and self.is_dt_str(answer['ner']['title']):
+                        answer['votes'] += 1
 
                 answer['bidaf']['title'] = self.extract_bidaf_answer(question, res_title)
                 if answer['bidaf']['title']:
@@ -267,11 +269,13 @@ class QAPipeline(object):
             if res_desc:
                 answer['ner']['desc'] = self.extract_ner_answer(q_class, res_desc)
                 if answer['ner']['desc']:
-                    answer['votes'] += 2
+                    answer['votes'] += 1
+                    if q_class in ['when', 'where_and_when'] and self.is_dt_str(answer['ner']['desc']):
+                        answer['votes'] += 1
 
                 answer['bidaf']['desc'] = self.extract_bidaf_answer(question, res_desc)
                 if answer['bidaf']['desc']:
-                    answer['votes'] += 2
+                    answer['votes'] += 1
 
             # Snippet and evidence
             if answer['bidaf']['desc']:
