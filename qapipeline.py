@@ -152,7 +152,7 @@ class QAPipeline(object):
 
         # TODO: verify if NE's must be added as a single element
         keyterms = list(set(keyterms))
-        print(keyterms)
+
         return keyterms  # Remove repeated terms
 
     def solr_res_to_list(self, response):
@@ -174,7 +174,6 @@ class QAPipeline(object):
         '''Retrieves from the index the user's post with userid and based on the keyterms'''
         keyterms_s = ' '.join(keyterms)
         query_s = 'userid_s:"%s" AND (title_t:%s OR desc_t:%s)' % (userid, keyterms_s, keyterms_s)
-        print(query_s)
         res = self.solr_flickr.search(query_s, rows=25)
         res_list = self.solr_res_to_list(res)
 
@@ -260,8 +259,6 @@ class QAPipeline(object):
             # Get the text
             res_title = self.get_index_field_val(res['title_t'])
             res_desc =  self.get_index_field_val(res['desc_t'])
-            print('title: ', res_title)
-            print('desc:  ', res_desc)
             # TITLE
             if res_title:
                 answer['ner']['title'] = self.extract_ner_answer(q_class, res_title)
@@ -288,16 +285,16 @@ class QAPipeline(object):
 
             # Snippet and evidence
             if answer['bidaf']['desc']:
-                answer['evidence'] = 'desc: {}'.format(res_desc)
+                answer['evidence'] = res_desc
                 answer['snippets'] = answer['bidaf']['desc']
             elif answer['bidaf']['title']:
-                answer['evidence'] = 'title: {}'.format(res_title)
+                answer['evidence'] = res_title
                 answer['snippets'] = answer['bidaf']['title']
             elif answer['ner']['desc']:
-                answer['evidence'] = 'desc: {}'.format(res_desc)
+                answer['evidence'] = res_desc
                 answer['snippets'] = answer['ner']['desc']
             elif answer['ner']['title']:
-                answer['evidence'] = 'title: {}'.format(res_title)
+                answer['evidence'] = res_title
                 answer['snippets'] = answer['ner']['title']
 
             # default according to type
