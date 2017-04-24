@@ -51,7 +51,7 @@ class QAPipeline(object):
         self.index_url = index_url
         # Declare constants
         self.index_fieldnames = [u'id', u'userid_s', u'username_s', u'title_t', u'desc_t', u'url_s', u'mediaurl_s', u'feedback_s', u'datetime_dt']
-        self.multimodal_question_types = [u'how_many', u'what', u'when', u'when_and_where', u'where', u'show_me', u'yes/no']
+        self.multimodal_question_types = [u'how_many', u'what', u'when', u'when_and_where', u'where', u'show_me', u'yes/no', u'who']
         self.uninformative_verbs = [u'be', u'do', u'have']
         self.show_me_verbs = [u'show', u'display', u'play', u'find', u'look', u'search']
         self.polite_phrases = [u'please', u'Please', u'could you please', u'Could you please']
@@ -79,20 +79,16 @@ class QAPipeline(object):
         for np in q_doc.noun_chunks:
             if np.root.head.lemma_ in self.show_me_verbs:
                 return True
-
         return False
-
-    def ensure_unicode(self, text):
-        if type(text) == str:
-            return text.decode('utf-8')
-        return text
 
     def classify_question(self, question):
         '''Classifies the question based on the given classifier during the init'''
         # TODO: improve the classifier and incorporate yes/no label
+        # 1. Detect if it is a command
         if self.is_command(question):
             return 'show_me'
 
+        # 2. Heuristics for classification
         q_doc = self.nlp(question)
         first_token = q_doc[0].lemma_
         if first_token == u'where':
@@ -101,12 +97,16 @@ class QAPipeline(object):
             return u'how_many'
         elif first_token == u'when':
             return u'when'
+        elif first_token == u'who':
+            return u'who'
         elif first_token in self.uninformative_verbs:
             return 'yes/no'
 
+        # 3. Fasttext classification if heuristic fails
         label, prob = self.qclf.predict_proba([question])[0][0]
         label = label.replace('__label__', '')
 
+        # 4. Bin the questions into target question for demo
         norm_label = self.normalize_question_class(label)
 
         return norm_label
@@ -172,30 +172,29 @@ class QAPipeline(object):
         video_url = u"https://www.flickr.com/video_download.gne?id={}".format(vid)
         return video_url
 
-    def extract_bidaf_answer(self, q, res, fieldname):
-        bidaf_ans = ''
-        text = self.get_index_field_val(res[fieldname])
-        if len(text) > 0:
-            bidaf_ans = self.get_answer(q, text)
-        return bidaf_ans
+    def extract_bidaf_answer(self, q, text):
+        return self.get_answer(q, text)
 
     def extract_ner_answer(self, q_class, text):
-        #TODO: finish heuristics
-
-        ners =[]
+        ''' Heuristics to extract the related named entities according to question type '''
+        ners = []
         doc = self.nlp(text)
         if q_class == u'how_many':
-            print('how_many')
+            ners = [w.text for w in doc if w.label_ in ['ORDINAL', 'CARDINAL', 'QUANTITY', 'MONEY', 'PERCENT']]
         elif q_class == u'when':
-            print('when')
+            ners = [w.text for w in doc if w.label_ in ['ORDINAL', 'DATE', 'TIME']]
         elif q_class == u'where':
-            print('where')
+            ners = [w.text for w in doc if w.label_ in ['FACILITY', 'ORG', 'GPE', 'LOC']]
         elif q_class == u'when_and_where':
-            print('when_and_where')
+            ners = [w.text for w in doc if w.label_ in ['FACILITY', 'ORG', 'GPE', 'LOC', 'ORDINAL', 'DATE', 'TIME']]
+        elif q_class == u'who':
+            ners = [w.text for w in doc if w.label_ in ['PERSON', 'ORG', 'EVENT', 'WORK_OF_ART']]
         else:
-            print('other')
+            ners = [w.text for w in doc]
 
-        return ners
+        ners_str = ' '.join(ners)
+
+        return ners_str
 
     def extract_answers(self, question, q_class, q_results):
         '''
@@ -209,40 +208,71 @@ class QAPipeline(object):
         '''
         According to type of question is what will be done, q_class should be the binned question
         1. Go through each of the retrieved docs
-        2. Extract bidaf answer from title or desc, add to answer and add vote
+        2. Extract bidaf answer from title then desc, add to answer and increase vote
         3. According to the question class:   
             - Extract corresponding ner, add to answer dict and add vote
         '''
         # TODO: This needs to be further improved by making an analysis based on the type of question
         answers = []
         for rank, res in enumerate(q_results):
-            # Extract answers from text fields
-            # TODO: move the period addition into the Bi-DAF service
-            snippet = ''
-            evidence = ''
-            text = self.get_index_field_val(res['desc_t'])
-            if len(text) > 0:
-                print(text)
-                bidaf_ans = self.get_answer(question, text)
-                snippet = bidaf_ans
-                evidence = text
-            # if not get it from title
-            text = self.get_index_field_val(res['title_t'])
-            if len(evidence) < 1 and len(text) > 0:
-                bidaf_ans = self.get_answer(question, text)
-                snippet = bidaf_ans
-                evidence = text
-
-            # build answer dictionary
+            # build answer
             answer = {}
-            answer['rank'] = rank
             answer['url'] = self.build_video_url(res['id'])
-            answer['evidence'] = evidence
-            answer['snippets'] = snippet
             answer['vid'] = res['id']
-            answer['bidaf'] = ''
-            answer['ner'] = ''
+            answer['bidaf'] = {'title':'', 'desc':''}
+            answer['ner'] = {'title':'', 'desc':''}
+            answer['evidence'] = ''
+            answer['snippet'] = ''
             answer['votes'] = 0
+
+            '''
+            1. Annotate the text for re-ranking
+                Priorities for answer extraction
+                1. BIDAF
+                    a) description
+                    b) title
+                2. NER
+                    a) description
+                    b) title
+            2. Build evidence, either title or description
+            3. Get snippet from annotation
+            '''
+            # Get the text
+            res_title = self.get_index_field_val('title_t')
+            res_desc =  self.get_index_field_val('desc_t')
+            # title
+            if res_title:
+                answer['ner']['title'] = self.extract_ner_answer(q_class, res_title)
+                if answer['ner']['title']:
+                    answer['votes'] += 1
+
+                answer['bidaf']['title'] = self.extract_bidaf_answer(question, res_title)
+                if answer['bidaf']['title']:
+                    answer['votes'] += 1
+
+            # description
+            if res_desc:
+                answer['ner']['desc'] = self.extract_ner_answer(q_class, res_desc)
+                if answer['ner']['desc']:
+                    answer['votes'] += 1
+
+                answer['bidaf']['desc'] = self.extract_bidaf_answer(question, res_desc)
+                if answer['bidaf']['desc']:
+                    answer['votes'] += 1
+
+            # Snippet and evidence
+            if answer['bidaf']['desc']:
+                answer['evidence'] = res_desc
+                answer['snippet'] = answer['bidaf']['desc']
+            elif answer['bidaf']['title']:
+                answer['evidence'] = res_title
+                answer['snippet'] = answer['bidaf']['title']
+            elif answer['ner']['desc']:
+                answer['evidence'] = res_desc
+                answer['snippet'] = answer['ner']['desc']
+            elif answer['ner']['title']:
+                answer['evidence'] = res_title
+                answer['snippet'] = answer['ner']['title']
 
             answers.append(answer)
 
@@ -250,7 +280,10 @@ class QAPipeline(object):
         answers = sorted(answers, key=lambda x:x['votes'])
 
         # Remove the fields that will not be shown in final answer
+        rank = 0
         for a in answers:
+            a['rank'] = rank
+            rank += 1
             a.pop('bidaf', None)
             a.pop('ner', None)
             a.pop('votes', None)
@@ -274,19 +307,24 @@ class QAPipeline(object):
             bin_class = 'where'
         elif q_class in ['show_me:all']:
             bin_class = 'show_me'
+        elif q_class in ['HUM:desc', 'HUM:gr', 'HUM:ind','HUM:title']:
+            bin_class = 'who'
         else:
             bin_class = 'what'
 
         return bin_class
 
+    def summarize_answers(self, q_answers):
+        pass
+
     def build_reponse(self, question, q_class, q_answers):
         '''Formats the answer to the API format'''
         res = {}
 
-        #TODO: improve the answer summary based on centrality of top answers
+        #TODO: improve the answer summary based on type of answer
         res['answer_summary'] = ''
-        if q_answers is not None and len(q_answers) > 0:
-            if len(q_answers[0]['snippets']) > 0:
+        if q_answers:
+            if q_answers[0]['snippets']:
                 res['answer_summary'] = q_answers[0]['snippets']
             else:
                 res['answer_summary'] = q_answers[0]['evidence']
