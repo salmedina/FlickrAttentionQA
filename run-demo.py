@@ -74,12 +74,9 @@ def ask():
     userid = request.args.get('userid')
     question = request.args.get('question')
     if (userid is None and question is None):
-        print('Wrong request')
-        data = json.loads(request.form['data'])
-        print(data)
+        data = request.get_json()
         userid = data['userid']
         question = data['userid']
-        print(userid, question)
 
     res = qap.answer_user_question(userid, question)
     return jsonify(res)
