@@ -50,7 +50,7 @@ class QAPipeline(object):
         self.qclf_path = qclf_path
         self.bidaf_url = bidaf_url
         self.index_url = index_url
-        self.num_answers = 10
+        self.num_answers = 25
         # Declare constants
         self.index_fieldnames = [u'id', u'userid_s', u'username_s', u'title_t', u'desc_t', u'url_s', u'mediaurl_s', u'feedback_s', u'datetime_dt']
         self.multimodal_question_types = [u'how_many', u'what', u'when', u'when_and_where', u'where', u'show_me', u'yes/no', u'who']
