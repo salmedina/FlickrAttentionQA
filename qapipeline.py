@@ -222,7 +222,7 @@ class QAPipeline(object):
             answer['bidaf'] = {'title':'', 'desc':''}
             answer['ner'] = {'title':'', 'desc':''}
             answer['evidence'] = ''
-            answer['snippet'] = ''
+            answer['snippets'] = ''
             answer['votes'] = 0
 
             '''
@@ -263,16 +263,16 @@ class QAPipeline(object):
             # Snippet and evidence
             if answer['bidaf']['desc']:
                 answer['evidence'] = res_desc
-                answer['snippet'] = answer['bidaf']['desc']
+                answer['snippets'] = answer['bidaf']['desc']
             elif answer['bidaf']['title']:
                 answer['evidence'] = res_title
-                answer['snippet'] = answer['bidaf']['title']
+                answer['snippets'] = answer['bidaf']['title']
             elif answer['ner']['desc']:
                 answer['evidence'] = res_desc
-                answer['snippet'] = answer['ner']['desc']
+                answer['snippets'] = answer['ner']['desc']
             elif answer['ner']['title']:
                 answer['evidence'] = res_title
-                answer['snippet'] = answer['ner']['title']
+                answer['snippets'] = answer['ner']['title']
 
             answers.append(answer)
 
