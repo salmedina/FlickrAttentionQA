@@ -241,6 +241,8 @@ class QAPipeline(object):
             # Get the text
             res_title = self.get_index_field_val(res['title_t'])
             res_desc =  self.get_index_field_val(res['desc_t'])
+            print('title: ', res_title)
+            print('desc:  ', res_desc)
             # title
             if res_title:
                 answer['ner']['title'] = self.extract_ner_answer(q_class, res_title)
@@ -263,16 +265,16 @@ class QAPipeline(object):
 
             # Snippet and evidence
             if answer['bidaf']['desc']:
-                answer['evidence'] = 'desc',res_desc
+                answer['evidence'] = 'desc: {}'.format(res_desc)
                 answer['snippets'] = answer['bidaf']['desc']
             elif answer['bidaf']['title']:
-                answer['evidence'] = 'title', res_title
+                answer['evidence'] = 'title: {}'.format(res_title)
                 answer['snippets'] = answer['bidaf']['title']
             elif answer['ner']['desc']:
-                answer['evidence'] = 'desc',res_desc
+                answer['evidence'] = 'desc: {}'.format(res_desc)
                 answer['snippets'] = answer['ner']['desc']
             elif answer['ner']['title']:
-                answer['evidence'] = 'title', res_title
+                answer['evidence'] = 'title: {}'.format(res_title)
                 answer['snippets'] = answer['ner']['title']
 
             answers.append(answer)
