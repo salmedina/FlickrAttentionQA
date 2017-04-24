@@ -1,1 +1,1 @@
-{"bidaf_url": "http://127.0.0.1:1995/submit", "qclf_path": "models/question.clf.bin", "index_url": "http://holbox.lti.cs.cmu.edu:8983/solr/flickr", "db_user":"inmind", "db_password":"yahoo", "db_name":"flickrqa"}
+{"bidaf_url": "", "qclf_path": "models/question.clf.bin", "index_url": "http://holbox.lti.cs.cmu.edu:8983/solr/flickr", "db_user":"inmind", "db_password":"yahoo", "db_name":"flickrqa"}
