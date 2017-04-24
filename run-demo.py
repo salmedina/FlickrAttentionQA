@@ -76,6 +76,7 @@ def ask():
     if (userid is None and question is None):
         print('Wrong request')
         data = json.loads(request.form['data'])
+        print(data)
         userid = data['userid']
         question = data['userid']
         print(userid, question)
