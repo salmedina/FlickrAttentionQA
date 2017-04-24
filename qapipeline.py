@@ -90,6 +90,13 @@ class QAPipeline(object):
         except Exception:
             return False
 
+    def beautify_datetime(self, text):
+        try:
+            text_dt = dateutil.parser.parse(text)
+            return text_dt.strftime('%B %d, %Y')
+        except Exception:
+            return ''
+
     def classify_question(self, question):
         '''Classifies the question based on the given classifier during the init'''
         # TODO: improve the classifier and incorporate yes/no label
@@ -344,10 +351,16 @@ class QAPipeline(object):
         ''' Generates the final answer according to the evidence '''
         summary = ''
         if q_answers:
-            if q_answers[0]['snippets']:
-                summary = q_answers[0]['snippets']
-            elif q_answers[0]['evidence']:
-                summary = q_answers[0]['evidence']
+            if q_class in ['when', 'where_and_when']:
+                summary = self.beautify_datetime(q_answers[0]['snippets'])
+                if not summary:
+                    summary = self.beautify_datetime(q_answers[0]['default'])
+            else:
+                if q_answers[0]['snippets']:
+                    summary = q_answers[0]['snippets']
+                elif q_answers[0]['evidence']:
+                    summary = q_answers[0]['evidence']
+
 
         return summary
 
