@@ -199,7 +199,7 @@ class QAPipeline(object):
         if q_class == u'how_many':
             ners = [w.text for w in doc.ents if w.label_ in ['ORDINAL', 'CARDINAL', 'QUANTITY', 'MONEY', 'PERCENT']]
         elif q_class == u'when':
-            ners = [w.text for w in doc.ents if w.label_ in ['ORDINAL', 'DATE', 'TIME']]
+            ners = [w.text for w in doc.ents if w.label_ in ['CARDINAL', 'ORDINAL', 'DATE', 'TIME']]
         elif q_class == u'where':
             ners = [w.text for w in doc.ents if w.label_ in ['FACILITY', 'ORG', 'GPE', 'LOC']]
         elif q_class == u'when_and_where':
