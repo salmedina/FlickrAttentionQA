@@ -238,8 +238,8 @@ class QAPipeline(object):
             3. Get snippet from annotation
             '''
             # Get the text
-            res_title = self.get_index_field_val('title_t')
-            res_desc =  self.get_index_field_val('desc_t')
+            res_title = self.get_index_field_val(res['title_t'])
+            res_desc =  self.get_index_field_val(res['desc_t'])
             # title
             if res_title:
                 answer['ner']['title'] = self.extract_ner_answer(q_class, res_title)
