@@ -4,6 +4,7 @@ import json
 import spacy
 import fasttext
 import pysolr
+import dateutil.parser
 from squad.demo_prepro import prepro
 from basic.demo_cli import Demo
 import collections
@@ -81,6 +82,13 @@ class QAPipeline(object):
             if np.root.head.lemma_ in self.show_me_verbs:
                 return True
         return False
+
+    def is_dt_str(self, text):
+        try:
+            dateutil.parser.parse(text)
+            return True
+        except Exception:
+            return False
 
     def classify_question(self, question):
         '''Classifies the question based on the given classifier during the init'''
@@ -259,11 +267,11 @@ class QAPipeline(object):
             if res_desc:
                 answer['ner']['desc'] = self.extract_ner_answer(q_class, res_desc)
                 if answer['ner']['desc']:
-                    answer['votes'] += 1
+                    answer['votes'] += 2
 
                 answer['bidaf']['desc'] = self.extract_bidaf_answer(question, res_desc)
                 if answer['bidaf']['desc']:
-                    answer['votes'] += 1
+                    answer['votes'] += 2
 
             # Snippet and evidence
             if answer['bidaf']['desc']:
