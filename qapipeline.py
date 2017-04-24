@@ -115,6 +115,8 @@ class QAPipeline(object):
             return u'when'
         elif first_token == u'who':
             return u'who'
+        elif first_token == u'which':
+            return u'what'
         elif first_token in self.uninformative_verbs:
             return 'yes/no'
 
