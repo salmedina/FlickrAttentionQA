@@ -49,6 +49,7 @@ class QAPipeline(object):
         self.qclf_path = qclf_path
         self.bidaf_url = bidaf_url
         self.index_url = index_url
+        self.num_answers = 10
         # Declare constants
         self.index_fieldnames = [u'id', u'userid_s', u'username_s', u'title_t', u'desc_t', u'url_s', u'mediaurl_s', u'feedback_s', u'datetime_dt']
         self.multimodal_question_types = [u'how_many', u'what', u'when', u'when_and_where', u'where', u'show_me', u'yes/no', u'who']
@@ -277,7 +278,7 @@ class QAPipeline(object):
             answers.append(answer)
 
         # Sort according to extraction votes
-        answers = sorted(answers, key=lambda x:x['votes'])
+        answers = sorted(answers, key=lambda x:x['votes'], reverse=True)
 
         # Remove the fields that will not be shown in final answer
         rank = 0
@@ -328,7 +329,7 @@ class QAPipeline(object):
                 res['answer_summary'] = q_answers[0]['snippets']
             else:
                 res['answer_summary'] = q_answers[0]['evidence']
-        res['answers'] = q_answers
+        res['answers'] = q_answers[:self.num_answers]
         res['highlighted_keyword'] = [a['snippets'] for a in q_answers if len(a['snippets']) > 0]
         res['question_type'] = q_class
         res['user_question'] = question
