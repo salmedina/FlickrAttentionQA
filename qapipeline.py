@@ -124,13 +124,14 @@ class QAPipeline(object):
                 (word.lemma_ not in self.show_me_verbs):
                 keyterms.append(word.text)
 
-        # Extract NP
-        for np in q_doc.noun_chunks:
-            keyterms.append(np.text)
-
         # Extract NE
         for ent in q_doc.ents:
             keyterms.append(ent.text)
+
+        # Extract NP
+        for np in q_doc.noun_chunks:
+            if np.lemma_ not in ['i', 'me', 'we']:
+                keyterms.append(np.text)
 
         # TODO: verify if NE's must be added as a single element
         keyterms = list(set(keyterms))
@@ -174,9 +175,7 @@ class QAPipeline(object):
         return video_url
 
     def extract_bidaf_answer(self, q, text):
-        bidaf_ans = self.get_answer(q, text)
-        print('bidaf_ans: {}'.format(bidaf_ans))
-        return bidaf_ans
+        return self.get_answer(text, q)
 
     def extract_ner_answer(self, q_class, text):
         ''' Heuristics to extract the related named entities according to question type '''
