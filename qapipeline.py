@@ -33,7 +33,6 @@ class BiDAF(object):
             return "[Error] Sorry, the number of words in question cannot be more than 100."
         return self.core.run(pq_prepro)
 
-
 class QAPipeline(object):
     def __init__(self, qclf_path, index_url, bidaf_url='', index_timeout=20, get_answer=None):
         '''
@@ -179,6 +178,9 @@ class QAPipeline(object):
         print(query_s)
         return res_list
 
+    def retrieve_user_posts_date(self, userid, kyeterm, date_str):
+        pass
+
     def get_index_field_val(self, field_val):
         if type(field_val) is list:
             return field_val[0]
@@ -320,6 +322,9 @@ class QAPipeline(object):
             a.pop('ner', None)
             a.pop('votes', None)
 
+        if q_class in ['when', 'where_and_when']:
+            answers = self.build_when_answers(answers)
+
         return answers
 
     def normalize_question_class(self, q_class):
@@ -345,6 +350,22 @@ class QAPipeline(object):
             bin_class = 'what'
 
         return bin_class
+
+    def build_when_answers(self, q_answers):
+        '''
+        Android app is reading the evidence into the cards, 
+        that is why we beautify the answer in evidence field
+        :param q_answers: 
+        :return: 
+        '''
+        formatted_answers = []
+        for answer in q_answers:
+            summary = self.beautify_datetime(q_answers[0]['snippets'])
+            if not summary:
+                summary = self.beautify_datetime(q_answers[0]['default'])
+            answer['evidence'] = summary
+            formatted_answers.append(answer)
+        return formatted_answers
 
     def summarize_answers(self, question, q_class, q_answers):
         ''' Generates the final answer according to the evidence '''
