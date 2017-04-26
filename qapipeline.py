@@ -360,9 +360,9 @@ class QAPipeline(object):
         '''
         formatted_answers = []
         for answer in q_answers:
-            summary = self.beautify_datetime(q_answers[0]['snippets'])
+            summary = self.beautify_datetime(q_answers['snippets'])
             if not summary:
-                summary = self.beautify_datetime(q_answers[0]['default'])
+                summary = self.beautify_datetime(q_answers['default'])
             answer['evidence'] = summary
             formatted_answers.append(answer)
         return formatted_answers
