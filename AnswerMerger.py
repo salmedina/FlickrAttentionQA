@@ -25,10 +25,10 @@ class AnswerMerger(object):
         num_mm_answers = len(mm_answer['answers'])
 
         merged_answers = [a for a in
-                          itertools.chain(*itertools.izip_longest(text_answer['answers'], mm_answer['answers']))
+                          itertools.chain(*itertools.zip_longest(text_answer['answers'], mm_answer['answers']))
                           if a is not None]
         merged_highlights = [a for a in
-                          itertools.chain(*itertools.izip_longest(text_answer['highlighted_keyword'], mm_answer['highlighted_keyword']))
+                          itertools.chain(*itertools.zip_longest(text_answer['highlighted_keyword'], mm_answer['highlighted_keyword']))
                           if a is not None]
         res['answers'] = merged_answers
         res['highlighted_keyword'] = merged_highlights
