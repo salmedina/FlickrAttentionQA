@@ -2,6 +2,8 @@ from flask import Flask, render_template, redirect, request, jsonify
 from squad.demo_prepro import prepro
 from basic.demo_cli import Demo
 from qapipeline import QAPipeline
+from mmqapipeline import MMQAPipeline
+from AnswerMerger import AnswerMerger
 import json
 
 app = Flask(__name__)
@@ -43,6 +45,8 @@ def getAnswer(paragraph, question):
 
 config = json.load(open('qaconfig.json'))
 qap = QAPipeline(config['qclf_path'], config['index_url'], config['bidaf_url'], get_answer=getAnswer)
+mmqap = MMQAPipeline(config['mmqa_url'])
+qamerger = AnswerMerger()
 
 @app.route('/')
 def main():
@@ -79,6 +83,20 @@ def ask():
         question = data['question']
 
     res = qap.answer_user_question(userid, question)
+    return jsonify(res)
+
+@app.route('/askboth', methods=['GET', 'POST'])
+def ask():
+    userid = request.args.get('userid')
+    question = request.args.get('question')
+    if (userid is None and question is None):
+        data = request.get_json()
+        userid = data['userid']
+        question = data['question']
+
+    text_res = qap.answer_user_question(userid, question)
+    mm_res = mmqap.answer_user_question(userid, question)
+    res = qamerger.merge(text_res, mm_res)
     return jsonify(res)
 
 if __name__ == "__main__":
