@@ -1,7 +1,13 @@
 from __future__ import print_function
 import json
-import itertools
 import re
+import itertools
+try:
+    # Python 3
+    from itertools import zip_longest
+except ImportError:
+    # Python 2
+    from itertools import izip_longest as zip_longest
 
 class AnswerMerger(object):
     def __init__(self):
@@ -10,7 +16,7 @@ class AnswerMerger(object):
     def beautify_mm_evidence(self, mm_answer):
         for i in range(len(mm_answer['answers'])):
             concepts_found = re.findall(r'(\w+): \d\.\d+', mm_answer['answers'][i]['evidence'])
-            if concepts_found is not None:
+            if concepts_found is not None and len(concepts_found) > 0:
                 num_concepts = len(concepts_found)
                 concept_list_str = ''
                 if num_concepts == 1:
@@ -65,10 +71,10 @@ class AnswerMerger(object):
             second_answer = text_answer
 
         merged_answers = [a for a in
-                          itertools.chain(*itertools.zip_longest(first_answer['answers'], second_answer['answers']))
+                          itertools.chain(*zip_longest(first_answer['answers'], second_answer['answers']))
                           if a is not None]
         merged_highlights = [a for a in
-                          itertools.chain(*itertools.zip_longest(first_answer['highlighted_keyword'], second_answer['highlighted_keyword']))
+                          itertools.chain(*zip_longest(first_answer['highlighted_keyword'], second_answer['highlighted_keyword']))
                           if a is not None]
         res['answers'] = merged_answers
         res['highlighted_keyword'] = merged_highlights
