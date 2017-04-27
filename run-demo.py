@@ -86,7 +86,7 @@ def ask():
     return jsonify(res)
 
 @app.route('/askboth', methods=['GET', 'POST'])
-def ask():
+def askboth():
     userid = request.args.get('userid')
     question = request.args.get('question')
     if (userid is None and question is None):
