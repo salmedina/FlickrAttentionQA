@@ -13,6 +13,11 @@ class AnswerMerger(object):
     def __init__(self):
         pass
 
+    def beautify_text_evidence(self, text_answer):
+        for i in range(len(text_answer['answers'])):
+            if 'snippets' in text_answer['answers'][i]:
+                text_answer['evidence'] += '\n' + text_answer['answers'][i]['snippet']
+
     def beautify_mm_evidence(self, mm_answer):
         for i in range(len(mm_answer['answers'])):
             concepts_found = re.findall(r'(\w+): \d\.\d+', mm_answer['answers'][i]['evidence'])
@@ -54,6 +59,7 @@ class AnswerMerger(object):
         # Ensure data is correct for processing
         self.norm_answer_fields(text_answer)
         self.norm_answer_fields(mm_answer)
+        self.beautify_text_evidence(text_answer)
         self.beautify_mm_evidence(mm_answer)
 
         res = {}
