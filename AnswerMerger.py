@@ -8,7 +8,7 @@ class AnswerMerger(object):
         pass
 
     def beautify_mm_evidence(self, mm_answer):
-        for i in xrange(len(mm_answer['answers'])):
+        for i in range(len(mm_answer['answers'])):
             concepts_found = re.findall(r'(\w+): \d\.\d+', mm_answer['answers'][i]['evidence'])
             if concepts_found is not None:
                 num_concepts = len(concepts_found)
