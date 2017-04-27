@@ -16,7 +16,7 @@ class AnswerMerger(object):
     def beautify_text_evidence(self, text_answer):
         for i in range(len(text_answer['answers'])):
             if 'snippets' in text_answer['answers'][i]:
-                text_answer['evidence'] += '\n' + text_answer['answers'][i]['snippet']
+                text_answer['answers'][i]['evidence'] += '\n' + text_answer['answers'][i]['snippets']
 
     def beautify_mm_evidence(self, mm_answer):
         for i in range(len(mm_answer['answers'])):
