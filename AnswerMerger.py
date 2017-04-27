@@ -25,8 +25,8 @@ class AnswerMerger(object):
                     concept_list_str = ', a '.join(concepts_found[:-1])+ ' and a ' + concepts_found[-1]
 
                 snippet = ''
-                if 'snippet' in mm_answer['answers'][i]:
-                    snippet = mm_answer['answers'][i]['snippet']
+                if 'snippets' in mm_answer['answers'][i]:
+                    snippet = mm_answer['answers'][i]['snippets']
 
                 mm_answer['answers'][i]['evidence'] = 'Found a {} in this video.\n{}'.format(concept_list_str, snippet)
 
