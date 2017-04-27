@@ -24,7 +24,7 @@ class AnswerMerger(object):
                 else:
                     concept_list_str = ', a '.join(concepts_found[:-1])+ ' and a ' + concepts_found[-1]
 
-                mm_answer['answers'][i]['evidence'] = 'Found a {} in this video'.format(concept_list_str)
+                mm_answer['answers'][i]['evidence'] = 'Found a {} in this video.\n{}'.format(concept_list_str, mm_answer['answers'][i]['snippet'])
 
     def norm_answer_fields(self, answer):
         if type(answer) is not dict:
