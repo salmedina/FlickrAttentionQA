@@ -287,15 +287,19 @@ class QAPipeline(object):
 
             # Snippet and evidence
             if answer['bidaf']['desc']:
+                answer['source'] = res_desc
                 answer['evidence'] = res_desc
                 answer['snippets'] = answer['bidaf']['desc']
             elif answer['bidaf']['title']:
+                answer['source'] = res_title
                 answer['evidence'] = res_title
                 answer['snippets'] = answer['bidaf']['title']
             elif answer['ner']['desc']:
+                answer['source'] = res_desc
                 answer['evidence'] = res_desc
                 answer['snippets'] = answer['ner']['desc']
             elif answer['ner']['title']:
+                answer['source'] = res_title
                 answer['evidence'] = res_title
                 answer['snippets'] = answer['ner']['title']
 
@@ -303,7 +307,7 @@ class QAPipeline(object):
             if q_class in ['when', 'where_and_when']:
                 answer['default'] = res['datetime_dt']
             elif q_class in ['yes/no']:
-                if answer['evidence'] or answer['snippet']:
+                if answer['evidence'] or answer['snippets']:
                     answer['default'] = 'yes'
                 else:
                     answer['default'] = 'no'
